@@ -1,0 +1,6 @@
+version
+sbt version
+playVersion
+sbt
+clear
+clean
