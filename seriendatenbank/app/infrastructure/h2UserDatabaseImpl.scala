@@ -87,7 +87,6 @@ object h2UserDatabaseImpl {
       (tempEpisode, tempSeason)
     }
     else {
-      println("The User" + user + " has not watched " + showname)
       (0, 0)
     }
   }
