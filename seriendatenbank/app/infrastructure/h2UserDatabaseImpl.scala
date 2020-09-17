@@ -10,7 +10,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object h2UserDatabaseImpl {
 
-  var currentId = 0
 
   object Tables {
     type Show = (String, Int,  Int) // Name + Season + Episode
@@ -34,19 +33,21 @@ object h2UserDatabaseImpl {
       */
   }
 
+  var currentId = 0
   import Tables._
 
   def addUser(user: String): Unit={
-    if(!myDatabase.exists(y => y._2 == user)){
-      var newUser: Person = (currentId, user, ListBuffer())
+    if(!myDatabase.exists(y => y._2.equals(user))){
+      var newUser: Person = (getID(), user, ListBuffer())
       myDatabase += newUser
-      currentId = getID()}
+      }
 
   }
 
   def getID() = {
-    currentId = currentId +1
-    currentId
+    val returnId: Int = currentId
+    currentId = currentId+1
+    returnId
   }
 
   def printDatabase()={
@@ -56,27 +57,23 @@ object h2UserDatabaseImpl {
 
   def addShow(user: String, showName: String, season: Int, episode: Int): Unit={
 
-    var newShow: Show = (showName, season, episode)
-    var tempPerson: Person = null
+   var tempPerson: Person = null
 
     for (aPerson <- myDatabase) {
       if(aPerson._2.equals(user)){
-            println("adding: " + showName + " to " + aPerson)
+            // Take every show that is not the one asked for and keep it.
             var tempShowlist: ShowList = aPerson._3.filter(_._1 != showName)
+            // Then add the specific show. This can be used to add or update a show.
             var tempShow: Show = (showName, season, episode)
             tempShowlist+= tempShow
             tempPerson = ( aPerson._1, aPerson._2, tempShowlist)
 
           }
     }
-    //println("Debug: ")
-    //println(myDatabase.filter(!_._2.equals(username)))
-    //println("/Debug ")
     if (tempPerson != null)
       myDatabase = myDatabase.filter(!_._2.equals(user)) += tempPerson
 
-    printDatabase()
-    //print(myDatabase)
+
 
   }
 
@@ -85,8 +82,8 @@ object h2UserDatabaseImpl {
       var tempUser: Person = myDatabase.filter(y => y._2.equals(user)).head
       var tempEpisode: Int = tempUser._3.filter(y => y._1.equals(showname)).head._3
       var tempSeason: Int = tempUser._3.filter(y => y._1.equals(showname)).head._2
-      println("The User " + user + " has watched the show " + showname + " til episode "
-        + tempEpisode + " of season " + tempSeason)
+      //println("The User " + user + " has watched the show " + showname + " til episode "
+      //  + tempEpisode + " of season " + tempSeason)
       (tempEpisode, tempSeason)
     }
     else {
@@ -109,7 +106,6 @@ object h2UserDatabaseImpl {
 
     var tempUsers: ListBuffer[Person] = myDatabase.filter( y => equalyfar(user, y._2, showname) && !user.equals(y._2))
 
-    tempUsers.foreach(y => println(y._2))
     var result: String = ""
     tempUsers.foreach(y => result += y._2 + ", ")
     try{
